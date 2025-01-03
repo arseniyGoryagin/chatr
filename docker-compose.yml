@@ -1,0 +1,40 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image : chatr
+    container_name: app
+    depends_on:
+      - database
+    environment:
+      SPRING_MAIL_DOMAIN: domain
+      SPRING_MAIL_HOST: host
+      SPRING_MAIL_PASSWORD: password
+      SPRING_MAIL_USERNAME: username
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/CHATR
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_TOKEN_SECRET: L8vJh5TDoBFOG7QXWRh3zqf3Ib0BdsFt5SHXSaOkq90=
+
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+
+    ports:
+      - "8080:8080"
+
+
+  database:
+    image: postgres:latest
+    container_name: database
+    restart: always
+    environment:
+      POSTGRES_DB: CHATR
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+
+
+
+
+
+
