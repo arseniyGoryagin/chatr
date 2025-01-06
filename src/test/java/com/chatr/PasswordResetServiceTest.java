@@ -79,7 +79,7 @@ public class PasswordResetServiceTest {
                 .subject("Востановление пароля")
                 .build();
 
-        when(userService.getByUserByEmail(email)).thenReturn(Optional.of(user));
+        when(userService.getUserByEmail(email)).thenReturn(Optional.of(user));
         when(codeGenerator.generateCode()).thenReturn(code);
         when(timeProvider.getCurrentTime()).thenReturn(currentTime);
 
@@ -88,7 +88,7 @@ public class PasswordResetServiceTest {
         passwordResetService.resetPassword(email);
 
 
-        verify(userService, times(1)).getByUserByEmail(email);
+        verify(userService, times(1)).getUserByEmail(email);
         verify(passwordResetRepository, times(1)).save(passwordResetToken);
         verify(emailService, times(1)).sendEmail(emailToSend);
 
@@ -102,7 +102,7 @@ public class PasswordResetServiceTest {
 
         String email  ="email@email.com";
 
-        when(userService.getByUserByEmail(email)).thenReturn(Optional.empty());
+        when(userService.getUserByEmail(email)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(UsernameNotFoundException.class, () -> {
             passwordResetService.resetPassword(email);
@@ -179,25 +179,25 @@ public class PasswordResetServiceTest {
     public void test_change_password_correct_user(){
 
         String token  ="token";
-        String email = "email@email.com";
+        String username = "username";
         String newPassword= "12345678";
         String newPasswordEncoded = "12345678Encoded";
 
 
         User user = new User();
-        user.setEmail(email);
+        user.setEmail(username);
         user.setPassword("oldpassword");
 
 
-        when(jwtService.getEmail(token, TokenType.RESETPASSWORD)).thenReturn(email);
-        when(userService.getByUserByEmail(email)).thenReturn(Optional.of(user));
+        when(jwtService.getUsername(token, TokenType.RESETPASSWORD)).thenReturn(username);
+        when(userService.getUserByUsername(username)).thenReturn(Optional.of(user));
         when(passwordEncoder.encode(newPassword)).thenReturn(newPasswordEncoded);
 
         passwordResetService.changePassword( newPassword,token);
 
         Assertions.assertEquals(newPasswordEncoded, user.getPassword());
-        verify(jwtService, times(1)).getEmail(token, TokenType.RESETPASSWORD);
-        verify(userService, times(1)).getByUserByEmail(email);
+        verify(jwtService, times(1)).getUsername(token, TokenType.RESETPASSWORD);
+        verify(userService, times(1)).getUserByUsername(username);
         verify(userService, times(1)).saveUser(user);
 
 
@@ -208,17 +208,17 @@ public class PasswordResetServiceTest {
     public void test_change_password_incorrect_user(){
 
         String token  ="token";
-        String email = "email@email.com";
+        String username = "username";
         String newPassword= "12345678";
 
-        when(jwtService.getEmail(token, TokenType.RESETPASSWORD)).thenReturn(email);
-        when(userService.getByUserByEmail(email)).thenReturn(Optional.empty());
+        when(jwtService.getUsername(token, TokenType.RESETPASSWORD)).thenReturn(username);
+        when(userService.getUserByUsername(username)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(InvalidRefreshTokenException.class, () -> {
             passwordResetService.changePassword(newPassword, token);
         });
 
-        verify(userService, times(1)).getByUserByEmail(email);
+        verify(userService, times(1)).getUserByUsername(username);
 
 
 

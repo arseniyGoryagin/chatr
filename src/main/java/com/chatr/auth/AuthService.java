@@ -38,8 +38,8 @@ public class AuthService {
         userService.createNewUser(user);
 
         return TokenResponse.builder()
-                .token(jwtService.generateToken(user.getEmail(), TokenType.ACCESS))
-                .refreshToken(jwtService.generateToken(user.getEmail(), TokenType.REFRESH))
+                .token(jwtService.generateToken(user.getUsername(), TokenType.ACCESS))
+                .refreshToken(jwtService.generateToken(user.getUsername(), TokenType.REFRESH))
                 .build();
     }
 
@@ -49,36 +49,36 @@ public class AuthService {
     /**
      * Аутентификация пользователя
      *
-     * @param email email пользователя
+     * @param username email пользователя
      * @param password пароль пользователя
      * @return токен
      */
-    public TokenResponse authUser (String email, String password){
+    public TokenResponse authUser (String username, String password){
 
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                email,
+                username,
                 password
         ));
 
         return TokenResponse.builder()
-                .token(jwtService.generateToken(email, TokenType.ACCESS))
-                .refreshToken(jwtService.generateToken(email, TokenType.REFRESH))
+                .token(jwtService.generateToken(username, TokenType.ACCESS))
+                .refreshToken(jwtService.generateToken(username, TokenType.REFRESH))
                 .build();
     }
 
 
     public TokenResponse refreshToken(String refreshToken){
 
-            String email = jwtService.getEmail(refreshToken, TokenType.REFRESH);
+            String username = jwtService.getUsername(refreshToken, TokenType.REFRESH);
 
 
-            userService.getByUserByEmail(email)
+            userService.getUserByUsername(username)
                     .orElseThrow(() -> new InvalidRefreshTokenException("Нет пользователя с таким токеном"));
 
             // TODO add valid by email
             if(jwtService.validateToken(refreshToken,TokenType.REFRESH)){
 
-                var newToken = jwtService.generateToken(email, TokenType.ACCESS);
+                var newToken = jwtService.generateToken(username, TokenType.ACCESS);
 
                 return TokenResponse.builder()
                         .token(newToken)

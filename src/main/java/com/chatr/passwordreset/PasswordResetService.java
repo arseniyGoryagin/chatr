@@ -37,15 +37,14 @@ public class PasswordResetService {
 
 
     /**
-     * Востановление пароля пользователя
+     * Отправление писмя востановление пароля пользователя на почту
      *
      *
      * @param email email пользователя
      */
     public void resetPassword(String email){
 
-
-        User user = userService.getByUserByEmail(email).orElseThrow(() -> new UsernameNotFoundException("No such user"));
+        User user = userService.getUserByEmail(email).orElseThrow(() -> new UsernameNotFoundException("No such user"));
 
         LocalDateTime expTime = timeProvider.getCurrentTime().plusMinutes(30);
 
@@ -119,9 +118,9 @@ public class PasswordResetService {
      */
     public void changePassword(String newPassword, String token){
 
-        String email = jwtService.getEmail(token, TokenType.RESETPASSWORD);
+        String username = jwtService.getUsername(token, TokenType.RESETPASSWORD);
 
-        User user = userService.getByUserByEmail(email).orElseThrow(() -> new InvalidRefreshTokenException("No such user for this token exists"));
+        User user = userService.getUserByUsername(username).orElseThrow(() -> new InvalidRefreshTokenException("No such user for this token exists"));
 
         user.setPassword(passwordEncoder.encode(newPassword));
 

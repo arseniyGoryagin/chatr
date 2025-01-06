@@ -13,6 +13,12 @@ import lombok.Data;
 public class RegisterRequest {
 
 
+
+    @NotBlank
+    @Schema(defaultValue = "Не коректный username", description = "Username пользователя", example = "12345Username")
+    private String username;
+
+
     @NotBlank
     @Schema(defaultValue = "Не коректный email", description = "Email пользователя", example = "example@email.com")
     @Email

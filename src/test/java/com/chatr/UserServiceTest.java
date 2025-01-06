@@ -1,6 +1,6 @@
 package com.chatr;
 
-import com.chatr.exceptions.UserAlreadyRegisteredException;
+import com.chatr.exceptions.UserAlreadyInUseException;
 import com.chatr.user.UserRepository;
 import com.chatr.user.UserService;
 import com.chatr.user.domain.User;
@@ -56,7 +56,7 @@ public class UserServiceTest {
 
         when(userRepository.existsByEmail(user.getEmail())).thenReturn(true);
 
-        Assertions.assertThrows(UserAlreadyRegisteredException.class, () -> userService.createNewUser(user));
+        Assertions.assertThrows(UserAlreadyInUseException.class, () -> userService.createNewUser(user));
 
         verify(userRepository, times(1)).existsByEmail(user.getEmail());
         verify(userRepository, never()).save(user);

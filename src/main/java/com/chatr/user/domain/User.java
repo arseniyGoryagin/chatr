@@ -28,9 +28,15 @@ public class User implements UserDetails {
     @Column(name = "password", updatable = true, nullable = false)
     private String password;
 
+    @Column(name = "description", updatable = false, nullable = false)
+    private String description;
+
+
+    @Column(name = "username", updatable = false, nullable = false)
+    private String username;
+
     @Column(name = "email", updatable = false, nullable = false)
     private String email;
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -39,6 +45,6 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return username;
     }
 }
