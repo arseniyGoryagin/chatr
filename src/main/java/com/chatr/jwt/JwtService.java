@@ -10,7 +10,7 @@ public interface JwtService {
      * @param token  токен
      * @return email
      */
-    public String getEmail(String token, TokenType tokenType);
+    public String getUsername(String token, TokenType tokenType);
 
 
     /**

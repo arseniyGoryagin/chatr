@@ -4,7 +4,7 @@ package com.chatr.auth;
 import com.chatr.auth.domain.*;
 import com.chatr.exceptions.ErrorMessageResponse;
 import com.chatr.exceptions.InvalidRefreshTokenException;
-import com.chatr.exceptions.UserAlreadyRegisteredException;
+import com.chatr.exceptions.UserAlreadyInUseException;
 import com.chatr.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -35,6 +35,8 @@ public class AuthController {
                 .builder()
                 .password(request.getPassword())
                 .email(request.getEmail())
+                .description("")
+                .username(request.getUsername())
                 .build();
         return authService.registerUser(user);
     }
@@ -45,7 +47,7 @@ public class AuthController {
     @ApiResponse(responseCode = "409", description = "Не правильно в ведённеы данные", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessageResponse.class)))
     @PostMapping("/login")
     public TokenResponse auth(@RequestBody @Valid LoginRequest request){
-        return authService.authUser(request.getEmail(), request.getPassword());
+        return authService.authUser(request.getUsername(), request.getPassword());
     }
 
     @Operation(summary = "Обновление токена")
@@ -64,8 +66,8 @@ public class AuthController {
         return new ResponseEntity<>(new ErrorMessageResponse(e.getLocalizedMessage()), HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(UserAlreadyRegisteredException.class)
-    public ResponseEntity<ErrorMessageResponse> handleAlreadyRegisteredException(UserAlreadyRegisteredException e){
+    @ExceptionHandler(UserAlreadyInUseException.class)
+    public ResponseEntity<ErrorMessageResponse> handleAlreadyRegisteredException(UserAlreadyInUseException e){
         return new ResponseEntity<>(new ErrorMessageResponse(e.getLocalizedMessage()), HttpStatus.CONFLICT);
     }
 

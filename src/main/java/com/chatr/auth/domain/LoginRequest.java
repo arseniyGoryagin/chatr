@@ -13,9 +13,8 @@ import lombok.Data;
 public class LoginRequest {
 
     @NotBlank
-    @Email
-    @Schema(description = "Email пользователя", example = "example@email.com")
-    private String email;
+    @Schema(defaultValue = "Не коректный username", description = "Username пользователя", example = "12345Username")
+    private String username;
 
     @NotBlank
     @Schema(description = "Пароль пользователя", example = "password")

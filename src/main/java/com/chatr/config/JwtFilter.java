@@ -9,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,6 +24,7 @@ import static com.chatr.util.RequestParser.*;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtFilter extends OncePerRequestFilter {
 
 
@@ -33,11 +35,11 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private void authUser(String token){
 
-        String email = jwtService.getEmail(token, TokenType.ACCESS);
+        String username = jwtService.getUsername(token, TokenType.ACCESS);
 
-        if(!email.isEmpty() && SecurityContextHolder.getContext().getAuthentication() ==  null){
+        if(!username.isEmpty() && SecurityContextHolder.getContext().getAuthentication() ==  null){
 
-            UserDetails userDetails = userService.userDetailsService().loadUserByUsername(email);
+            UserDetails userDetails = userService.userDetailsService().loadUserByUsername(username);
 
             // TODO add valid by email
             if(jwtService.validateToken(token, TokenType.ACCESS)){
@@ -48,12 +50,12 @@ public class JwtFilter extends OncePerRequestFilter {
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
                 securityContext.setAuthentication(authenticationToken);
+                SecurityContextHolder.setContext(securityContext);
+
+                return;
 
             }
-
         }
-
-
     }
 
 
@@ -63,21 +65,12 @@ public class JwtFilter extends OncePerRequestFilter {
         var authHeader = request.getHeader(HEADER);
 
         if(StringUtils.isEmpty(authHeader) || !authHeader.startsWith(BEARER_PREFIX)){
-
             filterChain.doFilter(request, response);
             return;
         }
 
         String token = getTokenFromHeader(authHeader);
-
         authUser(token);
-
         filterChain.doFilter(request, response);
-
-
     }
-
-
-
-
 }

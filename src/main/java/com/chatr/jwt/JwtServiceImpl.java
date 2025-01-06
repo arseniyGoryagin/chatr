@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Service
+@Slf4j
 public class JwtServiceImpl  implements JwtService{
 
     @Value("${token.secret}")
@@ -56,7 +58,7 @@ public class JwtServiceImpl  implements JwtService{
 
 
     @Override
-    public String getEmail(String token, TokenType tokenType) {
+    public String getUsername(String token, TokenType tokenType) {
         Claims claims = Jwts.parser()
                 .setSigningKey(getSecretKey(tokenType))
                 .build()
@@ -67,15 +69,14 @@ public class JwtServiceImpl  implements JwtService{
     }
 
     @Override
-    public String generateToken(String email, TokenType tokenType) {
-
+    public String generateToken(String username, TokenType tokenType) {
 
         long currentTimeMillis = System.currentTimeMillis();
         Date currentTime = new Date(currentTimeMillis);
         Date expTimeDate = new Date(currentTimeMillis + tokenType.expirationTime);
 
         return Jwts.builder()
-                .subject(email)
+                .subject(username)
                 .issuedAt(currentTime)
                 .expiration(expTimeDate)
                 .signWith(getSecretKey(tokenType))

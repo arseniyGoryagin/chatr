@@ -95,17 +95,17 @@ public class AuthServiceTest {
 
 
         String jwtToken = "jwtToken";
-        String email = "email";
+        String username = "username";
         String refreshToken = "refreshToken";
 
-        when(jwtService.generateToken(email, TokenType.ACCESS)).thenReturn(jwtToken);
+        when(jwtService.generateToken(username, TokenType.ACCESS)).thenReturn(jwtToken);
         when(jwtService.validateToken(refreshToken, TokenType.REFRESH)).thenReturn(true);
-        when(jwtService.getEmail(refreshToken, TokenType.REFRESH)).thenReturn(email);
-        when(userService.getByUserByEmail(email)).thenReturn(Optional.of(new User()));
+        when(jwtService.getUsername(refreshToken, TokenType.REFRESH)).thenReturn(username);
+        when(userService.getUserByUsername(username)).thenReturn(Optional.of(new User()));
 
        var result = authService.refreshToken(refreshToken);
 
-       verify(userService, times(1)).getByUserByEmail(email);
+       verify(userService, times(1)).getUserByUsername(username);
        Assertions.assertEquals(jwtToken, result.getToken());
        Assertions.assertEquals(refreshToken, result.getRefreshToken());
 
@@ -116,37 +116,37 @@ public class AuthServiceTest {
     @Test
     void test_refresh_token_invalid_jwt_signature(){
 
-        String email = "email";
+        String username = "username";
         String refreshToken = "refreshToken";
 
 
         when(jwtService.validateToken(refreshToken, TokenType.REFRESH)).thenReturn(false);
-        when(jwtService.getEmail(refreshToken, TokenType.REFRESH)).thenReturn(email);
-        when(userService.getByUserByEmail(email)).thenReturn(Optional.of(new User()));
+        when(jwtService.getUsername(refreshToken, TokenType.REFRESH)).thenReturn(username);
+        when(userService.getUserByUsername(username)).thenReturn(Optional.of(new User()));
 
         Assertions.assertThrows(InvalidRefreshTokenException.class, () -> {
             authService.refreshToken(refreshToken);
         });
 
-        verify(userService, times(1)).getByUserByEmail(email);
+        verify(userService, times(1)).getUserByUsername(username);
 
     }
 
     @Test
     void testRefreshToken_invalid_email_in_jwt(){
 
-        String email = "email";
+        String username = "username";
         String refreshToken = "refreshToken";
 
 
-        when(jwtService.getEmail(refreshToken, TokenType.REFRESH)).thenReturn(email);
-        when(userService.getByUserByEmail(email)).thenReturn(Optional.empty());
+        when(jwtService.getUsername(refreshToken, TokenType.REFRESH)).thenReturn(username);
+        when(userService.getUserByUsername(username)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(InvalidRefreshTokenException.class, () -> {
             authService.refreshToken(refreshToken);
         });
 
-        verify(userService, times(1)).getByUserByEmail(email);
+        verify(userService, times(1)).getUserByUsername(username);
 
     }
 
