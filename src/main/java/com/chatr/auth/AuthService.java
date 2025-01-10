@@ -5,9 +5,11 @@ import com.chatr.auth.domain.TokenResponse;
 import com.chatr.exceptions.InvalidRefreshTokenException;
 import com.chatr.jwt.JwtService;
 import com.chatr.jwt.TokenType;
+import com.chatr.kafka.KafkaTopics;
 import com.chatr.user.UserService;
 import com.chatr.user.domain.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,7 +19,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthService {
 
-
+    private final KafkaTemplate<String, String> kafkaTemplate;
     private final UserService userService;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
@@ -36,6 +38,8 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         userService.createNewUser(user);
+
+        kafkaTemplate.send(KafkaTopics.USER_REGISTERED, user.getEmail());
 
         return TokenResponse.builder()
                 .token(jwtService.generateToken(user.getUsername(), TokenType.ACCESS))
