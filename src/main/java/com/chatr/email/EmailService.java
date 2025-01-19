@@ -1,6 +1,7 @@
 package com.chatr.email;
 
 
+import com.chatr.email.config.EmailConfig;
 import com.chatr.email.domain.Email;
 import com.chatr.kafka.KafkaTopics;
 import lombok.RequiredArgsConstructor;
@@ -14,12 +15,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EmailService {
 
-    @Value("${mail.domain}")
-    private String domain;
 
-    @Value("${spring.mail.username}")
-    private String senderEmail;
-
+    private final EmailConfig emailConfig;
     private final JavaMailSender mailSender;
 
 
@@ -31,7 +28,7 @@ public class EmailService {
         message.setTo(email);
         message.setSubject("Welcome to chatr");
         message.setText("Welcome to chatr and hope you enjoy using the app!");
-        message.setFrom(senderEmail +domain);
+        message.setFrom(emailConfig.getUsername() +emailConfig.getDomain());
 
         mailSender.send(message);
 
@@ -45,7 +42,7 @@ public class EmailService {
         message.setTo(email.getAddress());
         message.setSubject(email.getSubject());
         message.setText(email.getBody());
-        message.setFrom(senderEmail +domain);
+        message.setFrom(emailConfig.getUsername() +emailConfig.getDomain());
         mailSender.send(message);
     }
 
