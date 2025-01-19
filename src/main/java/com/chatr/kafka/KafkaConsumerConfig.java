@@ -1,8 +1,10 @@
 package com.chatr.kafka;
 
 
+import com.chatr.kafka.config.KafkaConfig;
 import com.chatr.messages.domain.Message;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -17,16 +19,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@RequiredArgsConstructor
 public class KafkaConsumerConfig {
 
-    @Value("${spring.kafka.bootstrap-servers}")
-    private String kafkaServer;
+    private final KafkaConfig kafkaConfig;
 
 
     @Bean
     public ConsumerFactory<String, String> consumerFactory(){
         Map<String, Object> configProps = new HashMap<>();
-        configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaServer);
+        configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.getBootstrapServers());
         configProps.put(ConsumerConfig.GROUP_ID_CONFIG, "group_id");
         configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
@@ -48,7 +50,7 @@ public class KafkaConsumerConfig {
     @Bean
     public ConsumerFactory<String, Message> consumerFactoryMessage(){
         Map<String, Object> configProps = new HashMap<>();
-        configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaServer);
+        configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.getBootstrapServers());
         configProps.put(ConsumerConfig.GROUP_ID_CONFIG, "group_id");
         configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
