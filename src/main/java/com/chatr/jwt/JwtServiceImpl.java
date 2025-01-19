@@ -1,10 +1,12 @@
 package com.chatr.jwt;
 
 
+import com.chatr.jwt.config.JwtConfig;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,26 +15,19 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Service
-@Slf4j
+@RequiredArgsConstructor
 public class JwtServiceImpl  implements JwtService{
 
-    @Value("${token.secret}")
-    private String accessTokenSecret;
 
-    @Value("${token.secret}")
-    private String refreshTokenSecret;
-
-    @Value("${token.secret}")
-    private String resetPasswordSecret;
-
+    private final JwtConfig jwtConfig;
 
 
     private SecretKey getSecretKey(TokenType tokenType) {
 
         String secret = switch (tokenType){
-            case ACCESS -> accessTokenSecret;
-            case REFRESH -> refreshTokenSecret;
-            case RESETPASSWORD -> resetPasswordSecret;
+            case ACCESS -> jwtConfig.getTokenSecret();
+            case REFRESH -> jwtConfig.getTokenSecret();
+            case RESETPASSWORD -> jwtConfig.getTokenSecret();
             };
 
         byte[] keyBytes = Decoders.BASE64.decode(secret);
